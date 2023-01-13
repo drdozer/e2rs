@@ -1,29 +1,38 @@
+//! Representation of a generic Eternity 2 style puzzle.
+//! 
+//! This includes tiles, puzzle boards, clues and other commonly-needed types.
+//! Applications coded against these APIs will be able to work with any puzzle.
+//! To work specifically with the Eternith 2 Puzzle, look in [crate::e2] for specialised types
+//! and data.
+
 use std::{ops::{Index, IndexMut}, usize};
 
 
-#[derive(Debug, Clone, Copy, Default)]
-/// A tile is 4 edges of type `E`, ordered as North, East, South, West, or if you prefer,
+/// A tile is 4 edges, ordered as North, East, South, West, or if you prefer,
 /// clockwise starting at the top.
-pub struct Tile<E>(pub[E;4]);
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Tile<E>([E;4]);
 
 impl <E> Tile<E> {
+    /// Make a new tile, providing the edges in the order of the parameter names.
     pub fn new(north: E, east: E, south: E, west: E) -> Tile<E> {
         Tile([north, east, south, west])
     }
 }
 
 
+/// A complete tileset for an eternity-style puzzle.
 #[derive(Debug)]
-pub struct Tiles<E, const TILE_COUNT: usize>(pub [Tile<E>; TILE_COUNT]);
+pub struct TileSet<E, const TILE_COUNT: usize>(pub [Tile<E>; TILE_COUNT]);
 
-impl <E, const TILE_COUNT: usize> Index<usize> for Tiles<E, TILE_COUNT> {
+impl <E, const TILE_COUNT: usize> Index<usize> for TileSet<E, TILE_COUNT> {
     type Output = Tile<E>;
     fn index(&self, index: usize) -> &Self::Output {
         &self.0.index(index)
     }
 }
 
-impl <'a, E, const TILE_COUNT: usize> IntoIterator for &'a Tiles<E, TILE_COUNT> {
+impl <'a, E, const TILE_COUNT: usize> IntoIterator for &'a TileSet<E, TILE_COUNT> {
     type Item = &'a Tile<E>;
     type IntoIter = <&'a [Tile<E>; TILE_COUNT] as IntoIterator>::IntoIter;
 
@@ -31,7 +40,11 @@ impl <'a, E, const TILE_COUNT: usize> IntoIterator for &'a Tiles<E, TILE_COUNT> 
         (&self.0).into_iter()
     }
 }
-    
+
+/// The rotation of a tile.
+/// 
+/// When a tile is rotated, the edges shift around in a cycle.
+/// For example, Rotation::Clockwise will map north to east, east to south, south to west and west to north.
 #[derive(Debug, Clone, Copy)]
 #[repr(usize)]
 pub enum Rotation {
@@ -41,13 +54,29 @@ pub enum Rotation {
     Anti = 3,
 }
 
+/// A tile with a rotation.
+/// 
+/// The underlying tile is unaltered. 
 #[derive(Debug, Clone, Copy)]
-pub struct PlacedTile<E> {
+pub struct RotatedTile<E> {
     pub tile: Tile<E>,
     pub rotation: Rotation,
 }
 
+impl <E: Copy> RotatedTile<E> {
+    /// Apply the tile rotation to yield a new tile with the edges rotated in-place.
+    pub fn apply(&self) -> Tile<E> {
+        let Tile([north, east, south, west]) = self.tile;
+        match self.rotation {
+            Rotation::Zero      => Tile::new(north, east, south, west),
+            Rotation::Clockwise => Tile::new(west, north, east, south),
+            Rotation::Flip      => Tile::new(south, west, north, east),
+            Rotation::Anti      => Tile::new(east, south, west, north),
+        }
+    }
+}
 
+/// A (partially filled) board.
 #[derive(Debug, Clone, Copy)]
 pub struct Board<E, const COLUMNS: usize, const ROWS: usize>([Option<E>; COLUMNS * ROWS])
 where [(); COLUMNS * ROWS]:;
@@ -89,6 +118,7 @@ where [(); COLUMNS * ROWS]: {
     }
 }
 
+/// A clue, giving the tile, its rotation and it's position within the puzzle.
 #[derive(Clone, Copy, Debug)]
 pub struct Clue<E> {
     pub tile: Tile<E>,
@@ -96,6 +126,7 @@ pub struct Clue<E> {
     pub at: Indx,
 }
 
+/// A location within a board.
 #[derive(Clone, Copy, Debug)]
 pub struct Indx {
     pub col: usize,

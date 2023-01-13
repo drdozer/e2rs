@@ -1,8 +1,8 @@
 #![feature(const_for)]
 #![feature(generic_const_exprs)]
 
-mod e2;
-mod board;
+pub mod e2;
+pub mod board;
 
 fn main() {
     let tiles = e2::tiles();
