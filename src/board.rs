@@ -276,7 +276,7 @@ pub struct Indx {
 /// Parse a tiles file.
 /// 
 /// The file is expected to have exactly `TILE_COUNT` rows.
-/// Each row is expected to contain exactly 4 single digits separated by whitespace.
+/// Each row is expected to contain exactly 4 numbers separated by whitespace.
 /// The S1..S4 parameters specify which sides the 4 digits correspond to.
 /// So if S1 is North, the first edge in a row will be an edge assigned to the north side of a tile.
 pub fn parse_tiles<E, const S1: Side, const S2: Side, const S3: Side, const S4: Side, const TILE_COUNT: usize>
