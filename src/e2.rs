@@ -82,6 +82,26 @@ impl From<u8> for E2Edge {
     }
 }
 
+/// Error case for an invalid edge letter.
+#[derive(Debug)]
+pub struct InvalidEdge(char);
+
+/// Parse edge letters into edges.
+/// 
+/// Note - the lettering matches the standardised lettering, using column-major indexing.
+/// Some applications, such asthe [bucas board renderer][e2.bucas.name] use row-major indexing.
+impl TryFrom<char> for E2Edge {
+    // perhaps consider refactoring this so it can be generic for Edge
+    type Error = InvalidEdge;
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        match value as i32 - 'a' as i32 {
+            v if v < 0 => Err(InvalidEdge(value)),
+            v if v >= EDGES.len() as i32 => Err(InvalidEdge(value)),
+            v => Ok(From::from(v as u8))
+        }
+    }
+}
+
 /// All edge types from the Eternity 2 Puzzle as an array, for easy indexing.
 /// 
 /// Element zero is the outside (grey) edge type.
