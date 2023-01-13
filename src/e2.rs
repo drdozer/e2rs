@@ -114,7 +114,7 @@ pub const EDGES: [E2Edge; 23] = {
 /// Each tile is represented as 4 digits representing the edges in the order north, south, west east.
 /// Tiles are numbered as in ![E2 Edges][e2-edges]
 #[embed_doc_image("e2-edges", "data/E2-Colors.png")]
-static TILE_DATA: &str = include_str!("../data/e2pieces.txt");
+static TILE_DATA: &str = include_str!("../data/e2pieces-nswe.txt");
 
 /// Retrieve a new copy of the Eternity 2 Puzzle tileset.
 pub fn tiles() -> E2TileSet {
