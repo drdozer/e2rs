@@ -1,3 +1,4 @@
+#![allow(incomplete_features)]
 #![feature(const_for)]
 #![feature(generic_const_exprs)]
 
