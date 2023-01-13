@@ -225,11 +225,11 @@ where [(); COLUMNS * ROWS]: {
         c + r * COLUMNS
     }
 
-    fn columns() -> std::ops::Range<usize> {
+    pub const fn columns() -> std::ops::Range<usize> {
         0..COLUMNS
     }
 
-    fn rows() -> std::ops::Range<usize> {
+    pub const fn rows() -> std::ops::Range<usize> {
         0..ROWS
     }
 }
