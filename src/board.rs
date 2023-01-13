@@ -12,7 +12,7 @@ use std::{ops::{Index, IndexMut}, usize, mem::transmute};
 /// Sides are identified by their compas cardinalities.
 /// North/south point up/down in columns.
 /// East/west point left/right in rows.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 #[repr(usize)]
 pub enum Side {
     North = 0,
@@ -98,10 +98,16 @@ impl <E: Edge> Tile<E> {
 }
 
 
-impl <E: Edge> Index<Side> for Tile<E> {
+impl <E> Index<Side> for Tile<E> {
     type Output = E;
     fn index(&self, index: Side) -> &Self::Output {
         &self.edges[index as usize]
+    }
+}
+
+impl <E> IndexMut<Side> for Tile<E> {
+    fn index_mut(&mut self, index: Side) -> &mut Self::Output {
+        &mut self.edges[index as usize]
     }
 }
 
@@ -265,6 +271,43 @@ pub struct Clue<E> {
 pub struct Indx {
     pub col: usize,
     pub row: usize,
+}
+
+/// Parse a tiles file.
+/// 
+/// The file is expected to have exactly `TILE_COUNT` rows.
+/// Each row is expected to contain exactly 4 single digits separated by whitespace.
+/// The S1..S4 parameters specify which sides the 4 digits correspond to.
+/// So if S1 is North, the first edge in a row will be an edge assigned to the north side of a tile.
+pub fn parse_tiles<E, const S1: Side, const S2: Side, const S3: Side, const S4: Side, const TILE_COUNT: usize>
+    (txt: &str) -> TileSet<E, TILE_COUNT>
+where E: From<u8> + Copy + Default 
+{
+    let blank: Tile<E> = Default::default();
+
+    let mut tiles = crate::board::TileSet([blank; TILE_COUNT]);
+    for (tile_number, line) in txt.lines().enumerate() {
+        // println!("`{}'", line);
+        let mut digits = line
+            .trim()
+            .splitn(4, " ")
+            // .map(|d| { println!("`{}', ", d); d})
+            .map(|d| d.parse::<u8>().unwrap())
+            .map(From::from);
+
+        let e1 = digits.next().unwrap();
+        let e2 = digits.next().unwrap();
+        let e3 = digits.next().unwrap();
+        let e4 = digits.next().unwrap();
+
+        let tile = &mut tiles.0[tile_number];
+        tile[S1] = e1;
+        tile[S2] = e2;
+        tile[S3] = e3;
+        tile[S4] = e4;
+    }
+
+    tiles
 }
 
 // If we get really keen, we can make indexing use opaque Col, Row, Cell structs and then

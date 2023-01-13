@@ -5,6 +5,8 @@
 //! 
 //! For datastructures useful for prepresenting an arbitrary Eternity 2 style puzzle, see [crate::board].
 
+use std::mem::transmute;
+
 use embed_doc_image::embed_doc_image;
 
 /// Number of columns in the Eternity 2 Puzzle.
@@ -74,6 +76,12 @@ impl crate::board::Edge for E2Edge {
     }
 }
 
+impl From<u8> for E2Edge {
+    fn from(value: u8) -> Self {
+        unsafe { transmute(value) }
+    }
+}
+
 /// All edge types from the Eternity 2 Puzzle as an array, for easy indexing.
 /// 
 /// Element zero is the outside (grey) edge type.
@@ -114,31 +122,13 @@ pub const EDGES: [E2Edge; 23] = {
 /// Each tile is represented as 4 digits representing the edges in the order north, south, west east.
 /// Tiles are numbered as in ![E2 Edges][e2-edges]
 #[embed_doc_image("e2-edges", "data/E2-Colors.png")]
-static TILE_DATA: &str = include_str!("../data/e2pieces-nswe.txt");
+static TILE_DATA: &str = include_str!("../data/e2pieces-nesw.txt");
 
 /// Retrieve a new copy of the Eternity 2 Puzzle tileset.
 pub fn tiles() -> E2TileSet {
-    let blank: E2Tile = Default::default();
-
-    let mut tiles = crate::board::TileSet([blank; E2_TILE_COUNT]);
-    for (tile_number, line) in TILE_DATA.lines().enumerate() {
-        // println!("`{}'", line);
-        let mut digits = line
-            .trim()
-            .splitn(4, " ")
-            // .map(|d| { println!("`{}', ", d); d})
-            .map(|d| d.parse::<u8>().unwrap())
-            .map(|i| EDGES[i as usize]);
-
-        let north = digits.next().unwrap();
-        let south = digits.next().unwrap();
-        let west  = digits.next().unwrap();
-        let east  = digits.next().unwrap();
-
-        let tile = crate::board::Tile::new(north, east, south, west);
-
-        tiles.0[tile_number] = tile;
-    }
-
-    tiles
+    use crate::board::Side::*;
+    crate::board::parse_tiles::<
+        E2Edge, 
+        { North }, { East }, { South }, { West },
+        E2_TILE_COUNT>(TILE_DATA)
 }

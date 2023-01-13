@@ -1,6 +1,7 @@
 #![allow(incomplete_features)]
 #![feature(const_for)]
 #![feature(generic_const_exprs)]
+#![feature(adt_const_params)]
 
 pub mod e2;
 pub mod board;
