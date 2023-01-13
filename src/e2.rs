@@ -18,13 +18,13 @@ pub const E2_ROWS: usize = 16;
 pub const E2_TILE_COUNT: usize = E2_COLUMNS * E2_ROWS;
 
 /// A board configured to the Eternity 2 Puzzle specs.
-pub type E2Board = crate::board::Board<Edge, E2_COLUMNS, E2_ROWS>;
+pub type E2Board = crate::board::Board<E2Edge, E2_COLUMNS, E2_ROWS>;
 
 /// A tile configured to the Eternity 2 Puzzle specs.
-pub type E2Tile = crate::board::Tile<Edge>;
+pub type E2Tile = crate::board::Tile<E2Edge>;
 
 /// A tileset configured to the Eternity 2 Puzzle specs.
-pub type E2TileSet = crate::board::TileSet<Edge, E2_TILE_COUNT>;
+pub type E2TileSet = crate::board::TileSet<E2Edge, E2_TILE_COUNT>;
 
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
@@ -33,7 +33,7 @@ pub type E2TileSet = crate::board::TileSet<Edge, E2_TILE_COUNT>;
 /// The e2 edges are as follows:
 /// ![E2 Edges][e2-edges]
 #[embed_doc_image("e2-edges", "data/E2-Colors.png")]
-pub enum Edge {
+pub enum E2Edge {
     Outside = 0,
     Edge1,
     Edge2,
@@ -59,15 +59,26 @@ pub enum Edge {
     Edge22,
 }
 
-impl Default for Edge {
+impl Default for E2Edge {
     fn default() -> Self {
-        Edge::Outside
+        E2Edge::Outside
+    }
+}
+
+impl crate::board::Edge for E2Edge {
+    fn is_border(&self) -> bool {
+        match self {
+            E2Edge::Outside => true,
+            _ => false,
+        }
     }
 }
 
 /// All edge types from the Eternity 2 Puzzle as an array, for easy indexing.
-pub const EDGES: [Edge; 23] = {
-    use Edge::*;
+/// 
+/// Element zero is the outside (grey) edge type.
+pub const EDGES: [E2Edge; 23] = {
+    use E2Edge::*;
     [
         Outside,
         Edge1,
@@ -91,7 +102,8 @@ pub const EDGES: [Edge; 23] = {
         Edge19,
         Edge20,
         Edge21,
-        Edge22,    ]
+        Edge22,
+    ]
 };
 
 /// Pieces data string literal.
