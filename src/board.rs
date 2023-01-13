@@ -21,6 +21,15 @@ pub enum Side {
     West,
 }
 
+impl Side {
+    /// Flip the direction of the side, north <-> south and east <-> west.
+    pub const fn flip(self) -> Self {
+        let s = self as usize;
+        let s = s + 2;
+        unsafe { transmute(s % 4) }
+    }
+}
+
 /// All [Side] values, in order.
 pub const SIDES: [Side;4] = [
     Side::North,
