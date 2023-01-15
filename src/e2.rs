@@ -12,7 +12,7 @@ use std::mem::transmute;
 
 use embed_doc_image::embed_doc_image;
 
-use crate::board::Board;
+use crate::board::{Board, Tile, TileSet, BoardSpec};
 
 /// Number of columns in the Eternity 2 Puzzle.
 pub const E2_COLUMNS: usize = 16;
@@ -25,13 +25,13 @@ pub const E2_ROWS: usize = 16;
 pub const E2_TILE_COUNT: usize = E2_COLUMNS * E2_ROWS;
 
 /// A board configured to the Eternity 2 Puzzle specs.
-pub type E2Board = crate::board::Board<E2Edge>;
+pub type E2Board = Board<E2Edge>;
 
 /// A tile configured to the Eternity 2 Puzzle specs.
-pub type E2Tile = crate::board::Tile<E2Edge>;
+pub type E2Tile = Tile<E2Edge>;
 
 /// A tileset configured to the Eternity 2 Puzzle specs.
-pub type E2TileSet = crate::board::TileSet<E2Edge, E2_TILE_COUNT>;
+pub type E2TileSet = TileSet<E2Edge>;
 
 /// Number of edges in the Eternity 2 Puzzle specs.
 pub const E2_EDGE_COUNT: usize = 23;
@@ -231,10 +231,14 @@ pub const EDGES: [E2Edge; 23] = {
 static TILE_DATA: &str = include_str!("../data/e2pieces-nesw.txt");
 
 /// Retrieve a new copy of the Eternity 2 Puzzle tileset.
-pub fn tiles() -> E2TileSet {
+pub fn tiles() -> BoardSpec<E2Edge> {
     use crate::board::Side::*;
-    crate::board::parse_tiles::<
+    let bs = crate::board::parse_tiles::<
         E2Edge, 
-        { North }, { East }, { South }, { West },
-        E2_TILE_COUNT>(TILE_DATA)
+        { North }, { East }, { South }, { West }>(TILE_DATA);
+    assert_eq!(bs.tiles.len(), E2_TILE_COUNT);
+    match bs.dimensions {
+        None => BoardSpec { dimensions: Some((E2_COLUMNS, E2_ROWS)), tiles: bs.tiles },
+        Some(_) => bs,
+    }
 }

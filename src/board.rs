@@ -120,18 +120,28 @@ impl <E> IndexMut<Side> for Tile<E> {
 
 /// A complete tileset for an eternity-style puzzle.
 #[derive(Debug)]
-pub struct TileSet<E, const TILE_COUNT: usize>(pub [Tile<E>; TILE_COUNT]);
+pub struct TileSet<E>(Vec<Tile<E>>);
 
-impl <E, const TILE_COUNT: usize> Index<usize> for TileSet<E, TILE_COUNT> {
+impl <E> TileSet<E> {
+    pub fn new() -> Self {
+        TileSet(Vec::new())
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+}
+
+impl <E> Index<usize> for TileSet<E> {
     type Output = Tile<E>;
     fn index(&self, index: usize) -> &Self::Output {
         &self.0.index(index)
     }
 }
 
-impl <'a, E, const TILE_COUNT: usize> IntoIterator for &'a TileSet<E, TILE_COUNT> {
+impl <'a, E> IntoIterator for &'a TileSet<E> {
     type Item = &'a Tile<E>;
-    type IntoIter = <&'a [Tile<E>; TILE_COUNT] as IntoIterator>::IntoIter;
+    type IntoIter = <&'a Vec<Tile<E>> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         (&self.0).into_iter()
@@ -281,6 +291,11 @@ impl <E> IndexMut<(usize, usize)> for Board<E> {
     }
 }
 
+pub struct BoardSpec<E> {
+    pub dimensions: Option<(usize, usize)>,
+    pub tiles: TileSet<E>
+}
+
 /// A clue, giving the tile, its rotation and it's position within the puzzle.
 #[derive(Clone, Copy, Debug)]
 pub struct Clue<E> {
@@ -303,39 +318,45 @@ pub struct Indx {
 
 /// Parse a tiles file.
 /// 
-/// The file is expected to have exactly `TILE_COUNT` rows.
 /// Each row is expected to contain exactly 4 numbers separated by whitespace.
 /// The S1..S4 parameters specify which sides the 4 digits correspond to.
 /// So if S1 is North, the first edge in a row will be an edge assigned to the north side of a tile.
-pub fn parse_tiles<E, const S1: Side, const S2: Side, const S3: Side, const S4: Side, const TILE_COUNT: usize>
-    (txt: &str) -> TileSet<E, TILE_COUNT>
+pub fn parse_tiles<E, const S1: Side, const S2: Side, const S3: Side, const S4: Side>
+    (txt: &str) -> BoardSpec<E>
 where E: From<u8> + Copy + Default 
 {
     let blank: Tile<E> = Default::default();
 
-    let mut tiles = crate::board::TileSet([blank; TILE_COUNT]);
-    for (tile_number, line) in txt.lines().enumerate() {
+    let mut tiles = TileSet::new();
+    let mut dimensions = None;
+    for line in txt.lines() {
         // println!("`{}'", line);
-        let mut digits = line
+        let digits: Vec<_> = line
             .trim()
-            .splitn(4, " ")
+            .split(" ")
             // .map(|d| { println!("`{}', ", d); d})
-            .map(|d| d.parse::<u8>().unwrap())
-            .map(From::from);
+            .collect();
 
-        let e1 = digits.next().unwrap();
-        let e2 = digits.next().unwrap();
-        let e3 = digits.next().unwrap();
-        let e4 = digits.next().unwrap();
-
-        let tile = &mut tiles.0[tile_number];
-        tile[S1] = e1;
-        tile[S2] = e2;
-        tile[S3] = e3;
-        tile[S4] = e4;
+        match digits.len() {
+            0 => (),
+            1 => dimensions = Some((digits[0].parse().unwrap(), digits[0].parse().unwrap())),
+            2 => dimensions = Some((digits[0].parse().unwrap(), digits[1].parse().unwrap())),
+            4 => {
+                let mut tile = blank.clone();
+                let digits: Vec<_> = digits.iter()
+                    .map(|d| d.parse::<u8>().unwrap())
+                    .map(From::from).collect();
+                tile[S1] = digits[0];
+                tile[S2] = digits[1];
+                tile[S3] = digits[2];
+                tile[S4] = digits[3];
+                tiles.0.push(tile);
+            },
+            l => panic!("Bad number of digits in board file: {}", l)
+        }
     }
 
-    tiles
+    BoardSpec{ dimensions, tiles }
 }
 
 // If we get really keen, we can make indexing use opaque Col, Row, Cell structs and then
