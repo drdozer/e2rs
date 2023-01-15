@@ -123,10 +123,12 @@ impl <E> IndexMut<Side> for Tile<E> {
 pub struct TileSet<E>(Vec<Tile<E>>);
 
 impl <E> TileSet<E> {
+    /// Create a new, empty tileset.
     pub fn new() -> Self {
         TileSet(Vec::new())
     }
 
+    /// Get the length of this tileset.
     pub fn len(&self) -> usize {
         self.0.len()
     }
@@ -253,7 +255,7 @@ pub struct Board<E> {
 
 impl <E> Board<E> {
     /// Create a new, empty board.
-    pub fn new(cols: usize, rows: usize) -> Board<E> {
+    fn new(cols: usize, rows: usize) -> Board<E> {
         Board {
             cols, rows,
             squares: Vec::default()
@@ -291,10 +293,17 @@ impl <E> IndexMut<(usize, usize)> for Board<E> {
     }
 }
 
+/// A board specification.
+/// 
+/// This is composed from an optional board dimensions, and a tileset.
 pub struct BoardSpec<E> {
-    pub dimensions: Option<(usize, usize)>,
-    pub tiles: TileSet<E>
+    /// The specified dimensions of boards.
+    pub dimensions: Option<Dimensions>,
+
+    /// The tileset to fill boards with.
+    pub tiles: TileSet<E>,
 }
+
 
 /// A clue, giving the tile, its rotation and it's position within the puzzle.
 #[derive(Clone, Copy, Debug)]
@@ -314,6 +323,21 @@ pub struct Indx {
     pub col: usize,
     /// Row position.
     pub row: usize,
+}
+
+/// The dimensions of a board.
+pub struct Dimensions {
+    /// Column count
+    pub columns: usize,
+    /// Row count
+    pub rows: usize,
+}
+
+impl Dimensions {
+    /// Make a new, blank board with the specified dimensions.
+    pub fn new_board<E>(&self) -> Board<E> {
+        Board::new(self.columns, self.rows)
+    }
 }
 
 /// Parse a tiles file.
@@ -339,8 +363,15 @@ where E: From<u8> + Copy + Default
 
         match digits.len() {
             0 => (),
-            1 => dimensions = Some((digits[0].parse().unwrap(), digits[0].parse().unwrap())),
-            2 => dimensions = Some((digits[0].parse().unwrap(), digits[1].parse().unwrap())),
+            1 => dimensions = {
+                let column_count = digits[0].parse().unwrap();
+                Some(Dimensions { columns: column_count, rows: column_count } )
+            },
+            2 => dimensions = {
+                let column_count = digits[0].parse().unwrap();
+                let row_count = digits[1].parse().unwrap();
+                Some(Dimensions { columns: column_count, rows: row_count } )
+            },
             4 => {
                 let mut tile = blank.clone();
                 let digits: Vec<_> = digits.iter()

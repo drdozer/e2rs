@@ -12,14 +12,16 @@ use std::mem::transmute;
 
 use embed_doc_image::embed_doc_image;
 
-use crate::board::{Board, Tile, TileSet, BoardSpec};
+use crate::board::{Board, Tile, TileSet, BoardSpec, Dimensions};
 
 /// Number of columns in the Eternity 2 Puzzle.
 pub const E2_COLUMNS: usize = 16;
 
-
 /// Number of rows in the Eternity 2 Puzzle.
 pub const E2_ROWS: usize = 16;
+
+/// Dimensions of the Eternity 2 Puzzle.
+pub const E2_DIMENSIONS: Dimensions = Dimensions { columns: E2_COLUMNS, rows: E2_ROWS };
 
 /// Number of tiles in the Eternity 2 Puzzle.
 pub const E2_TILE_COUNT: usize = E2_COLUMNS * E2_ROWS;
@@ -38,7 +40,7 @@ pub const E2_EDGE_COUNT: usize = 23;
 
 /// Create a new board configured for the Eternity 2 Puzzle specs.
 pub fn new_e2board() -> E2Board {
-    Board::new(E2_COLUMNS, E2_ROWS)
+    E2_DIMENSIONS.new_board()
 }
 
 
@@ -238,7 +240,7 @@ pub fn tiles() -> BoardSpec<E2Edge> {
         { North }, { East }, { South }, { West }>(TILE_DATA);
     assert_eq!(bs.tiles.len(), E2_TILE_COUNT);
     match bs.dimensions {
-        None => BoardSpec { dimensions: Some((E2_COLUMNS, E2_ROWS)), tiles: bs.tiles },
+        None => BoardSpec { dimensions: Some(E2_DIMENSIONS), tiles: bs.tiles },
         Some(_) => bs,
     }
 }
