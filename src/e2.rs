@@ -5,6 +5,9 @@
 //! 
 //! For datastructures useful for prepresenting an arbitrary Eternity 2 style puzzle, see [crate::board].
 
+pub mod images;
+
+
 use std::mem::transmute;
 
 use embed_doc_image::embed_doc_image;
@@ -28,13 +31,63 @@ pub type E2Tile = crate::board::Tile<E2Edge>;
 /// A tileset configured to the Eternity 2 Puzzle specs.
 pub type E2TileSet = crate::board::TileSet<E2Edge, E2_TILE_COUNT>;
 
+pub const E2_EDGE_COUNT: usize = 23;
+
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
 /// A rust edge is either *outside* (grey) or one of the 22 two-color patterns.
 /// 
 /// The e2 edges are as follows:
-/// ![E2 Edges][e2-edges]
+/// 
+/// | Number | Letter | Edge        |
+/// |--------|--------|-------------|
+/// | 0      | a      | ![e0][e0]   |
+/// | 1      | b      | ![e1][e1]   |
+/// | 2      | c      | ![e2][e2]   |
+/// | 3      | d      | ![e3][e3]   |
+/// | 4      | e      | ![e4][e4]   |
+/// | 5      | f      | ![e5][e5]   |
+/// | 6      | g      | ![e6][e6]   |
+/// | 7      | h      | ![e7][e7]   |
+/// | 8      | i      | ![e8][e8]   |
+/// | 9      | j      | ![e9][e9]   |
+/// | 10     | k      | ![e10][e10] |
+/// | 11     | l      | ![e11][e11] |
+/// | 12     | m      | ![e12][e12] |
+/// | 13     | n      | ![e13][e13] |
+/// | 14     | o      | ![e14][e14] |
+/// | 15     | p      | ![e15][e15] |
+/// | 16     | q      | ![e16][e16] |
+/// | 17     | r      | ![e17][e17] |
+/// | 18     | s      | ![e18][e18] |
+/// | 19     | t      | ![e19][e19] |
+/// | 20     | u      | ![e20][e20] |
+/// | 21     | v      | ![e21][e21] |
+/// | 22     | w      | ![e22][e22] |
 #[embed_doc_image("e2-edges", "data/E2-Colors.png")]
+#[embed_doc_image("e0", "data/edge_images/0.png")]
+#[embed_doc_image("e1", "data/edge_images/1.png")]
+#[embed_doc_image("e2", "data/edge_images/2.png")]
+#[embed_doc_image("e3", "data/edge_images/3.png")]
+#[embed_doc_image("e4", "data/edge_images/4.png")]
+#[embed_doc_image("e5", "data/edge_images/5.png")]
+#[embed_doc_image("e6", "data/edge_images/6.png")]
+#[embed_doc_image("e7", "data/edge_images/7.png")]
+#[embed_doc_image("e8", "data/edge_images/8.png")]
+#[embed_doc_image("e9", "data/edge_images/9.png")]
+#[embed_doc_image("e10", "data/edge_images/10.png")]
+#[embed_doc_image("e11", "data/edge_images/11.png")]
+#[embed_doc_image("e12", "data/edge_images/12.png")]
+#[embed_doc_image("e13", "data/edge_images/13.png")]
+#[embed_doc_image("e14", "data/edge_images/14.png")]
+#[embed_doc_image("e15", "data/edge_images/15.png")]
+#[embed_doc_image("e16", "data/edge_images/16.png")]
+#[embed_doc_image("e17", "data/edge_images/17.png")]
+#[embed_doc_image("e18", "data/edge_images/18.png")]
+#[embed_doc_image("e19", "data/edge_images/19.png")]
+#[embed_doc_image("e20", "data/edge_images/20.png")]
+#[embed_doc_image("e21", "data/edge_images/21.png")]
+#[embed_doc_image("e22", "data/edge_images/22.png")]
 pub enum E2Edge {
     Outside = 0,
     Edge1,
