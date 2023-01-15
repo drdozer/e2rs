@@ -86,9 +86,9 @@ pub fn edge_image(tile: Tile<E2Edge>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let mut img = ImageBuffer::new(IMAGES[0].dimensions().0, IMAGES[0].dimensions().1);
     
     overlay(&mut img, &IMAGES[tile[North] as usize], 0, 0);
-    overlay(&mut img, &rotate90(&IMAGES[tile[East] as usize]), 0, 0);
+    overlay(&mut img, &rotate90 (&IMAGES[tile[East]  as usize]), 0, 0);
     overlay(&mut img, &rotate180(&IMAGES[tile[South] as usize]), 0, 0);
-    overlay(&mut img, &rotate270(&IMAGES[tile[West] as usize]), 0, 0);
+    overlay(&mut img, &rotate270(&IMAGES[tile[West]  as usize]), 0, 0);
 
     img
 }
