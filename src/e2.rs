@@ -12,6 +12,8 @@ use std::mem::transmute;
 
 use embed_doc_image::embed_doc_image;
 
+use crate::board::Board;
+
 /// Number of columns in the Eternity 2 Puzzle.
 pub const E2_COLUMNS: usize = 16;
 
@@ -23,7 +25,7 @@ pub const E2_ROWS: usize = 16;
 pub const E2_TILE_COUNT: usize = E2_COLUMNS * E2_ROWS;
 
 /// A board configured to the Eternity 2 Puzzle specs.
-pub type E2Board = crate::board::Board<E2Edge, E2_COLUMNS, E2_ROWS>;
+pub type E2Board = crate::board::Board<E2Edge>;
 
 /// A tile configured to the Eternity 2 Puzzle specs.
 pub type E2Tile = crate::board::Tile<E2Edge>;
@@ -31,7 +33,14 @@ pub type E2Tile = crate::board::Tile<E2Edge>;
 /// A tileset configured to the Eternity 2 Puzzle specs.
 pub type E2TileSet = crate::board::TileSet<E2Edge, E2_TILE_COUNT>;
 
+/// Number of edges in the Eternity 2 Puzzle specs.
 pub const E2_EDGE_COUNT: usize = 23;
+
+/// Create a new board configured for the Eternity 2 Puzzle specs.
+pub fn new_e2board() -> E2Board {
+    Board::new(E2_COLUMNS, E2_ROWS)
+}
+
 
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
@@ -89,30 +98,54 @@ pub const E2_EDGE_COUNT: usize = 23;
 #[embed_doc_image("e21", "data/edge_images/21.png")]
 #[embed_doc_image("e22", "data/edge_images/22.png")]
 pub enum E2Edge {
+    /// The outside of the puzzle.
     Outside = 0,
+    /// An internal edge.
     Edge1,
+    /// An internal edge.
     Edge2,
+    /// An internal edge.
     Edge3,
+    /// An internal edge.
     Edge4,
+    /// An internal edge.
     Edge5,
+    /// An internal edge.
     Edge6,
+    /// An internal edge.
     Edge7,
+    /// An internal edge.
     Edge8,
+    /// An internal edge.
     Edge9,
+    /// An internal edge.
     Edge10,
+    /// An internal edge.
     Edge11,
+    /// An internal edge.
     Edge12,
+    /// An internal edge.
     Edge13,
+    /// An internal edge.
     Edge14,
+    /// An internal edge.
     Edge15,
+    /// An internal edge.
     Edge16,
+    /// An internal edge.
     Edge17,
+    /// An internal edge.
     Edge18,
+    /// An internal edge.
     Edge19,
+    /// An internal edge.
     Edge20,
+    /// An internal edge.
     Edge21,
+    /// An internal edge.
     Edge22,
 }
+
 
 impl Default for E2Edge {
     fn default() -> Self {

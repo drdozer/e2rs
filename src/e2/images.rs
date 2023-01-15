@@ -1,4 +1,5 @@
-
+//! Work with image representations of boards.
+//! 
 use image::Rgba;
 use image::imageops::{rotate90, rotate180, rotate270};
 use lazy_static::lazy_static;
@@ -9,6 +10,7 @@ use crate::{e2::E2_EDGE_COUNT, board::{Tile, Side::*}};
 use super::E2Edge;
 
 lazy_static! {
+    /// Edge images.
     pub static ref IMAGES: [DynamicImage; E2_EDGE_COUNT] = [
         load_from_memory(
             include_bytes!("../../data/edge_images/0.png"))
@@ -82,6 +84,7 @@ lazy_static! {
             ];
 }
 
+/// Render a tile as an image.
 pub fn edge_image(tile: Tile<E2Edge>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let mut img = ImageBuffer::new(IMAGES[0].dimensions().0, IMAGES[0].dimensions().1);
     

@@ -15,9 +15,13 @@ use std::{ops::{Index, IndexMut}, usize, mem::transmute};
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[repr(usize)]
 pub enum Side {
+    /// The North, top side.
     North = 0,
+    /// The East, right side.
     East,
+    /// The South, bottom side.
     South,
+    /// The West, left side.
     West,
 }
 
@@ -38,7 +42,9 @@ pub const SIDES: [Side;4] = [
     Side::West,
 ];
 
+/// Shared operations on things that are edges.
 pub trait Edge {
+    /// Check if the edge is a border, that must be placed to the outside of the puzzle.
     fn is_border(&self) -> bool;
 }
 
@@ -134,14 +140,18 @@ impl <'a, E, const TILE_COUNT: usize> IntoIterator for &'a TileSet<E, TILE_COUNT
 
 /// The rotation of a tile.
 /// 
-/// When a tile is rotated, the edges shift around in a cycle.
-/// For example, Rotation::Clockwise will map north to east, east to south, south to west and west to north.
+/// When a tile is rotated, the edges shift around in a cycle, conter-clockwise.
+/// For example, Rot90 will make the new north the old east, the new east the old south and so on.
 #[derive(Debug, Clone, Copy)]
 #[repr(usize)]
 pub enum Rotation {
+    /// No rotation
     Rot0 = 0,
+    /// Rotation 90 degrees counter-clockwise.
     Rot90,
+    /// Rotation 180 degrees (flip).
     Rot180,
+    /// Rotation 270 degrees counter-clockwise, 90 degrees clockwise.
     Rot270,
 }
 
@@ -176,7 +186,9 @@ pub const ROTATIONS: [Rotation;4] = [
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct RotatedTile<E> {
+    /// The tile being rotated.
     pub tile: Tile<E>,
+    /// The rotation to apply.
     pub rotation: Rotation,
 }
 
@@ -217,59 +229,75 @@ impl <E> Index<Side> for RotatedTile<E> {
 }
 
 /// A (partially filled) board.
-#[derive(Debug, Clone, Copy)]
-pub struct Board<E, const COLUMNS: usize, const ROWS: usize>([Option<E>; COLUMNS * ROWS])
-where [(); COLUMNS * ROWS]:;
+/// 
+/// Each cell is empty, or contains a tile with the specified edge type.
+#[derive(Debug, Clone)]
+pub struct Board<E> {
+    /// Number of columns in the board (its width).
+    pub cols: usize,
 
-impl <E, const COLUMNS: usize, const ROWS: usize> Board<E, COLUMNS, ROWS>
-where [(); COLUMNS * ROWS]: {
-    fn indx(c: usize, r: usize) -> usize {
-        debug_assert!(c < COLUMNS);
-        debug_assert!(r < ROWS);
+    /// Number of rows in the board (its height).
+    pub rows: usize,
+    squares: Vec<Option<Tile<E>>>
+}
+
+impl <E> Board<E> {
+    /// Create a new, empty board.
+    pub fn new(cols: usize, rows: usize) -> Board<E> {
+        Board {
+            cols, rows,
+            squares: Vec::default()
+        }
+    }
+
+    fn indx(&self, c: usize, r: usize) -> usize {
+        debug_assert!(c < self.cols);
+        debug_assert!(r < self.rows);
 
         // this should compile down to (c | r >> 4) or equivalent
-        c + r * COLUMNS
-    }
-
-    pub const fn columns() -> std::ops::Range<usize> {
-        0..COLUMNS
-    }
-
-    pub const fn rows() -> std::ops::Range<usize> {
-        0..ROWS
+        c + r * self.cols
     }
 }
 
-impl <E, const COLUMNS: usize, const ROWS: usize> Index<(usize, usize)> for Board<E, COLUMNS, ROWS>
-where [(); COLUMNS * ROWS]: {
-    type Output = Option<E>;
+impl <E> Index<(usize, usize)> for Board<E> {
+    type Output = Option<Tile<E>>;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
         let (c, r) = index;
-        &self.0[Board::<E, COLUMNS, ROWS>::indx(c, r)]
+        let index = self.indx(c, r);
+        unsafe {
+            self.squares.get_unchecked(index)
+        }
     }
 }
 
-impl <E, const COLUMNS: usize, const ROWS: usize> IndexMut<(usize, usize)> for Board<E, COLUMNS, ROWS>
-where [(); COLUMNS * ROWS]: {
+impl <E> IndexMut<(usize, usize)> for Board<E> {
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
         let (c, r) = index;
-        &mut self.0[Board::<E, COLUMNS, ROWS>::indx(c, r)]
+        let index = self.indx(c, r);
+        unsafe {
+            self.squares.get_unchecked_mut(index)
+        }
     }
 }
 
 /// A clue, giving the tile, its rotation and it's position within the puzzle.
 #[derive(Clone, Copy, Debug)]
 pub struct Clue<E> {
+    /// The clue tile.
     pub tile: Tile<E>,
+    /// How to rotate the clue tile.
     pub rotation: Rotation,
+    /// Where to place the clue tile.
     pub at: Indx,
 }
 
 /// A location within a board.
 #[derive(Clone, Copy, Debug)]
 pub struct Indx {
+    /// Column position.
     pub col: usize,
+    /// Row position.
     pub row: usize,
 }
 
