@@ -231,7 +231,7 @@ pub const EDGES: [E2Edge; 23] = {
 static TILE_DATA: &str = include_str!("../data/e2pieces-nesw.txt");
 
 /// Retrieve a new copy of the Eternity 2 Puzzle tileset.
-pub fn tiles() -> BoardSpec<E2Edge> {
+pub fn board_spec() -> BoardSpec<E2Edge> {
     use crate::board::Side::*;
     let bs = crate::board::parse_tiles::<
         E2Edge, 

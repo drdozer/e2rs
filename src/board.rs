@@ -134,12 +134,22 @@ impl <E> TileSet<E> {
     }
 }
 
-impl <E> Index<usize> for TileSet<E> {
-    type Output = Tile<E>;
-    fn index(&self, index: usize) -> &Self::Output {
-        &self.0.index(index)
+impl <E, Idx> Index<Idx> for TileSet<E>
+where
+    Idx: std::slice::SliceIndex<[Tile<E>]> {
+    type Output = Idx::Output;
+
+    fn index(&self, index: Idx) -> &Self::Output {
+        &self.0[index]
     }
 }
+
+// impl <E> Index<usize> for TileSet<E> {
+//     type Output = Tile<E>;
+//     fn index(&self, index: usize) -> &Self::Output {
+//         &self.0.index(index)
+//     }
+// }
 
 impl <'a, E> IntoIterator for &'a TileSet<E> {
     type Item = &'a Tile<E>;
@@ -149,6 +159,7 @@ impl <'a, E> IntoIterator for &'a TileSet<E> {
         (&self.0).into_iter()
     }
 }
+
 
 /// The rotation of a tile.
 /// 
@@ -250,24 +261,29 @@ pub struct Board<E> {
 
     /// Number of rows in the board (its height).
     pub rows: usize,
+
+    /// The squares on the board.
     squares: Vec<Option<Tile<E>>>
 }
 
-impl <E> Board<E> {
+impl <E: Clone> Board<E> {
     /// Create a new, empty board.
     fn new(cols: usize, rows: usize) -> Board<E> {
         Board {
             cols, rows,
-            squares: Vec::default()
+            squares: vec![None; cols * rows]
         }
     }
+}
 
-    fn indx(&self, c: usize, r: usize) -> usize {
+impl <E> Board<E> {
+        fn indx(&self, c: usize, r: usize) -> usize {
         debug_assert!(c < self.cols);
         debug_assert!(r < self.rows);
 
-        // this should compile down to (c | r >> 4) or equivalent
-        c + r * self.cols
+        let idx = c + r * self.cols;
+        // println!("indx: {},{}->{}", c, r, idx);
+        idx
     }
 }
 
@@ -283,6 +299,14 @@ impl <E> Index<(usize, usize)> for Board<E> {
     }
 }
 
+impl <E> Index<Indx> for Board<E> {
+    type Output = <Board<E> as Index<(usize, usize)>>::Output;
+
+    fn index(&self, index: Indx) -> &Self::Output {
+        self.index((index.col, index.row))
+    }
+}
+
 impl <E> IndexMut<(usize, usize)> for Board<E> {
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
         let (c, r) = index;
@@ -290,6 +314,12 @@ impl <E> IndexMut<(usize, usize)> for Board<E> {
         unsafe {
             self.squares.get_unchecked_mut(index)
         }
+    }
+}
+
+impl <E> IndexMut<Indx> for Board<E> {
+    fn index_mut(&mut self, index: Indx) -> &mut Self::Output {
+        self.index_mut((index.col, index.row))
     }
 }
 
@@ -316,6 +346,15 @@ pub struct Clue<E> {
     pub at: Indx,
 }
 
+impl <E: Copy + std::fmt::Debug> Clue<E> {
+    /// Apply a clue to a board.
+    pub fn apply(&self, board: &mut Board<E>) {
+        let rott = self.tile.rotate(self.rotation);
+        // println!("Writing rotated tile {:?} at {:?}", rott, self.at);
+        board[self.at] = Some(rott.apply());
+    }
+}
+
 /// A location within a board.
 #[derive(Clone, Copy, Debug)]
 pub struct Indx {
@@ -335,7 +374,7 @@ pub struct Dimensions {
 
 impl Dimensions {
     /// Make a new, blank board with the specified dimensions.
-    pub fn new_board<E>(&self) -> Board<E> {
+    pub fn new_board<E: Clone>(&self) -> Board<E> {
         Board::new(self.columns, self.rows)
     }
 }
