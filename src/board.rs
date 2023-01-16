@@ -119,18 +119,58 @@ impl <E> IndexMut<Side> for Tile<E> {
 
 
 /// A complete tileset for an eternity-style puzzle.
+/// 
+/// Tile sets are indexed from 1 in the puzzle numbering scheme.
+/// To make this work well, element 0 is a blank tile, not to be used.
 #[derive(Debug)]
 pub struct TileSet<E>(Vec<Tile<E>>);
 
-impl <E> TileSet<E> {
+impl <E: Default> TileSet<E> {
     /// Create a new, empty tileset.
     pub fn new() -> Self {
-        TileSet(Vec::new())
+        let mut tiles = Vec::new();
+        tiles.push(Default::default());
+        TileSet(tiles)
     }
 
     /// Get the length of this tileset.
     pub fn len(&self) -> usize {
         self.0.len()
+    }
+}
+
+impl <E: Copy> TileSet<E> {
+    /// Parse a clues file.
+    /// 
+    /// The format is:
+    /// <tile number> <column> <row> <rotation>
+    /// 
+    /// If the clockwise flag is true, the rotation is taken to be clockwise.
+    /// If false, anti-clockwise.
+    pub fn parse_clues(&self, txt: &str, clockwise: bool) -> Vec<Clue<E>> {
+        let mut clues: Vec<_> = Vec::new();
+
+        for line in txt.lines() {
+            let digits: Vec<_> = line
+                .trim()
+                .split(" ")
+                .map(|d| d.parse::<usize>().unwrap())
+                .collect();
+            let tile = self[digits[0]];
+            let col = digits[1];
+            let row = digits[2];
+            let at = Indx { col, row };
+            let mut rotation= ROTATIONS[digits[3]];
+            if clockwise {
+                rotation = rotation.reverse();
+            }
+
+            clues.push(Clue{ tile, rotation, at })
+        }
+
+        clues
+
+
     }
 }
 
@@ -176,6 +216,23 @@ pub enum Rotation {
     Rot180,
     /// Rotation 270 degrees counter-clockwise, 90 degrees clockwise.
     Rot270,
+}
+
+impl Rotation {
+    /// Reverse a rotation.
+    /// 
+    /// Effectively this translates between clockwise and anti-clockwise rotations.
+    pub fn reverse(self) -> Self {
+        // fixme: there's probably a simple arithmetic trick for this,
+        // which may or may not be quicker than the lookup
+        use Rotation::*;
+        match self {
+            Rot0 => Rot0,
+            Rot90 => Rot270,
+            Rot180 => Rot180,
+            Rot270 => Rot90,
+        }
+    }
 }
 
 impl std::ops::Add for Rotation {

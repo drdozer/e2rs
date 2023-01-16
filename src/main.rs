@@ -9,7 +9,7 @@
 
 use rand::{distributions::{Slice, Uniform}, prelude::Distribution};
 
-use crate::board::{Clue, ROTATIONS, Indx};
+use crate::{board::{Clue, ROTATIONS, Indx}, e2::E2_CLUES};
 
 pub mod board;
 pub mod e2;
@@ -25,7 +25,7 @@ fn main() {
         println!("{}:\t{:?}", i, t);
     }
 
-    let clue = tiles[139 - 1];
+    let clue = tiles[139];
     println!("{:?}", clue); // todo: tiles are cannonically indexed from 1, not 0
 
     for r in board::ROTATIONS {
@@ -40,7 +40,7 @@ fn main() {
     let r_rot = Slice::new(&ROTATIONS).unwrap().map(Clone::clone);
 
     println!("Creating a blank board");
-    let mut board = dims.new_board();
+    let mut rand_board = dims.new_board();
 
     for _ in 1..20 {
         let clue = Clue {
@@ -50,12 +50,19 @@ fn main() {
         };
         println!("Applying clue: {:?}", clue);
 
-        clue.apply(&mut board);
+        clue.apply(&mut rand_board);
     }
     println!("Built randomised board.");
-    let img = images::board_image(&board);
+    let rand_img = images::board_image(&rand_board);
     println!("Constructed board image.");
-    img.save("randomised_board.png").unwrap();
+    rand_img.save("randomised_board.png").unwrap();
     println!("Saved image to file");
 
+    println!("Creating clue board");
+    let mut clue_board = dims.new_board();
+    for clue in E2_CLUES.iter() {
+        clue.apply(&mut clue_board);
+    }
+    let clue_img = images::board_image(&clue_board);
+    clue_img.save("clues.png").unwrap();
 }
