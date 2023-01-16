@@ -5,8 +5,6 @@
 //! 
 //! For datastructures useful for prepresenting an arbitrary Eternity 2 style puzzle, see [crate::board].
 
-pub mod images;
-
 
 use std::mem::transmute;
 

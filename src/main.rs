@@ -7,8 +7,9 @@
 #![feature(stmt_expr_attributes)]
 #![warn(missing_docs)]
 
-pub mod e2;
 pub mod board;
+pub mod e2;
+pub mod images;
 
 fn main() {
     let board = e2::tiles();
