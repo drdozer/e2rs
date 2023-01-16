@@ -389,7 +389,3 @@ where E: From<u8> + Copy + Default
 
     BoardSpec{ dimensions, tiles }
 }
-
-// If we get really keen, we can make indexing use opaque Col, Row, Cell structs and then
-// guarantee that unsafe lookups are in bounds.
-// This would require some boilerplate to make ergonomic, so a job for later.
