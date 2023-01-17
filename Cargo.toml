@@ -2,10 +2,26 @@
 name = "e2rs"
 version = "0.1.0"
 edition = "2021"
+author = "turingatemyhamster@gmail.com"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "e2rs"
+path = "src/lib.rs"
+
+[[bin]]
+name = "test_main"
+path = "src/bin/test_main.rs"
+
+[[bin]]
+name = "render_clues"
+path = "src/bin/render_clues.rs"
+author = "turingatemyhamster@gmail.com"
+version = "0.1.0"
+
 [dependencies]
+clap = { version = "4.1.1", features = ["derive"] }
 embed-doc-image = "0.1.4"
 image = "0.24.5"
 lazy_static = "1.4.0"
