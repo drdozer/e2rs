@@ -311,7 +311,7 @@ impl <E> Index<Side> for RotatedTile<E> {
 /// A (partially filled) board.
 /// 
 /// Each cell is empty, or contains a tile with the specified edge type.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Board<E> {
     /// Number of columns in the board (its width).
     pub cols: usize,
@@ -421,6 +421,7 @@ pub struct Indx {
     pub row: usize,
 }
 
+#[derive(Clone, Copy, Debug)]
 /// The dimensions of a board.
 pub struct Dimensions {
     /// Column count
