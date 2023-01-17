@@ -15,8 +15,8 @@ name = "test_main"
 path = "src/bin/test_main.rs"
 
 [[bin]]
-name = "render_clues"
-path = "src/bin/render_clues.rs"
+name = "render_solution"
+path = "src/bin/render_solution.rs"
 author = "turingatemyhamster@gmail.com"
 version = "0.1.0"
 
