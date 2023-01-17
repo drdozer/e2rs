@@ -1,19 +1,10 @@
 //! Eternity 2-family puzzles.
 
-#![allow(incomplete_features)]
-#![feature(const_for)]
-#![feature(generic_const_exprs)]
-#![feature(adt_const_params)]
-#![feature(stmt_expr_attributes)]
-#![warn(missing_docs)]
 
 use rand::{distributions::{Slice, Uniform}, prelude::Distribution};
 
-use crate::{board::{Clue, ROTATIONS, Indx}, e2::E2_CLUES};
+use e2rs::{board::{Clue, ROTATIONS, Indx}, e2::{self, E2_CLUES}, images::{board_image}};
 
-pub mod board;
-pub mod e2;
-pub mod images;
 
 fn main() {
     let spec = e2::board_spec();
@@ -28,7 +19,7 @@ fn main() {
     let clue = tiles[139];
     println!("{:?}", clue); // todo: tiles are cannonically indexed from 1, not 0
 
-    for r in board::ROTATIONS {
+    for r in ROTATIONS {
         let rt = clue.rotate(r).apply();
         println!("{:?}: {:?}", r, rt);
     }
@@ -53,7 +44,7 @@ fn main() {
         clue.apply(&mut rand_board);
     }
     println!("Built randomised board.");
-    let rand_img = images::board_image(&rand_board);
+    let rand_img = board_image(&rand_board);
     println!("Constructed board image.");
     rand_img.save("randomised_board.png").unwrap();
     println!("Saved image to file");
@@ -63,6 +54,6 @@ fn main() {
     for clue in E2_CLUES.iter() {
         clue.apply(&mut clue_board);
     }
-    let clue_img = images::board_image(&clue_board);
+    let clue_img = board_image(&clue_board);
     clue_img.save("clues.png").unwrap();
 }
