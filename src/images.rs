@@ -95,13 +95,13 @@ pub fn edge_image<I: GenericImage<Pixel = Rgba<u8>>>(img: &mut I, tile: &Tile<E2
 /// Render a board as an image.
 pub fn board_image(board: &Board<E2Edge>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let (tile_w, tile_h) = IMAGES[0].dimensions();
-    let board_w = tile_w * board.cols as u32;
+    let board_w = tile_w * board.columns as u32;
     let board_h = tile_h * board.rows as u32;
 
     let mut img = ImageBuffer::new(board_w, board_h);
 
     for r in 0..board.rows {
-        for c in 0..board.cols {
+        for c in 0..board.columns {
             if let Some(t) = &board[(c, r)] {
                 let c = c as u32;
                 let r = r as u32;

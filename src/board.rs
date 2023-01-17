@@ -142,8 +142,7 @@ impl <E: Default> TileSet<E> {
 impl <E: Copy> TileSet<E> {
     /// Parse a clues file.
     /// 
-    /// The format is:
-    /// <tile number> <column> <row> <rotation>
+    /// The format is described in the formats document.
     /// 
     /// If the clockwise flag is true, the rotation is taken to be clockwise.
     /// If false, anti-clockwise.
@@ -314,7 +313,7 @@ impl <E> Index<Side> for RotatedTile<E> {
 #[derive(Debug)]
 pub struct Board<E> {
     /// Number of columns in the board (its width).
-    pub cols: usize,
+    pub columns: usize,
 
     /// Number of rows in the board (its height).
     pub rows: usize,
@@ -325,20 +324,20 @@ pub struct Board<E> {
 
 impl <E: Clone> Board<E> {
     /// Create a new, empty board.
-    fn new(cols: usize, rows: usize) -> Board<E> {
+    fn new(columns: usize, rows: usize) -> Board<E> {
         Board {
-            cols, rows,
-            squares: vec![None; cols * rows]
+            columns, rows,
+            squares: vec![None; columns * rows]
         }
     }
 }
 
 impl <E> Board<E> {
         fn indx(&self, c: usize, r: usize) -> usize {
-        debug_assert!(c < self.cols);
+        debug_assert!(c < self.columns);
         debug_assert!(r < self.rows);
 
-        let idx = c + r * self.cols;
+        let idx = c + r * self.columns;
         // println!("indx: {},{}->{}", c, r, idx);
         idx
     }
@@ -385,14 +384,14 @@ impl <E> IndexMut<Indx> for Board<E> {
 /// This is composed from an optional board dimensions, and a tileset.
 pub struct BoardSpec<E> {
     /// The specified dimensions of boards.
-    pub dimensions: Option<Dimensions>,
+    pub dimensions: Option<BoardShape>,
 
     /// The tileset to fill boards with.
     pub tiles: TileSet<E>,
 }
 
 
-/// A clue, giving the tile, its rotation and it's position within the puzzle.
+/// A clue, giving the tile, its rotation and its position within the puzzle.
 #[derive(Clone, Copy, Debug)]
 pub struct Clue<E> {
     /// The clue tile.
@@ -422,16 +421,16 @@ pub struct Indx {
 }
 
 #[derive(Clone, Copy, Debug)]
-/// The dimensions of a board.
-pub struct Dimensions {
+/// The shape of a board.
+pub struct BoardShape {
     /// Column count
     pub columns: usize,
     /// Row count
     pub rows: usize,
 }
 
-impl Dimensions {
-    /// Make a new, blank board with the specified dimensions.
+impl BoardShape {
+    /// Make a new, blank board with the specified shape.
     pub fn new_board<E: Clone>(&self) -> Board<E> {
         Board::new(self.columns, self.rows)
     }
@@ -462,12 +461,12 @@ where E: From<u8> + Copy + Default
             0 => (),
             1 => dimensions = {
                 let column_count = digits[0].parse().unwrap();
-                Some(Dimensions { columns: column_count, rows: column_count } )
+                Some(BoardShape { columns: column_count, rows: column_count } )
             },
             2 => dimensions = {
                 let column_count = digits[0].parse().unwrap();
                 let row_count = digits[1].parse().unwrap();
-                Some(Dimensions { columns: column_count, rows: row_count } )
+                Some(BoardShape { columns: column_count, rows: row_count } )
             },
             4 => {
                 let mut tile = blank.clone();
