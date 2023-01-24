@@ -7,6 +7,6 @@
 #![feature(stmt_expr_attributes)]
 #![warn(missing_docs)]
 
-pub mod board;
+pub mod model;
 pub mod e2;
 pub mod images;

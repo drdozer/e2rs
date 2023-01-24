@@ -1,13 +1,18 @@
 //! Work with image representations of boards.
-//! 
-use image::{Rgba, GenericImage};
-use image::imageops::{rotate90, rotate180, rotate270};
+//!
+use image::imageops::{rotate180, rotate270, rotate90};
+use image::{
+    self, imageops::overlay, load_from_memory, DynamicImage, GenericImageView, ImageBuffer,
+};
+use image::{GenericImage, Rgba};
 use lazy_static::lazy_static;
-use image::{self, load_from_memory, DynamicImage, GenericImageView, ImageBuffer, imageops::overlay};
 
-use crate::board::Board;
 use crate::e2::E2Edge;
-use crate::{e2::E2_EDGE_COUNT, board::{Tile, Side::*}};
+use crate::model::Board;
+use crate::{
+    model::{Side::*, Tile},
+    e2::E2_EDGE_COUNT,
+};
 
 lazy_static! {
     /// Edge images.
@@ -87,9 +92,9 @@ lazy_static! {
 /// Render a tile as an image.
 pub fn edge_image<I: GenericImage<Pixel = Rgba<u8>>>(img: &mut I, tile: &Tile<E2Edge>) {
     overlay(img, &IMAGES[tile[North] as usize], 0, 0);
-    overlay(img, &rotate90 (&IMAGES[tile[East]  as usize]), 0, 0);
+    overlay(img, &rotate90(&IMAGES[tile[East] as usize]), 0, 0);
     overlay(img, &rotate180(&IMAGES[tile[South] as usize]), 0, 0);
-    overlay(img, &rotate270(&IMAGES[tile[West]  as usize]), 0, 0);
+    overlay(img, &rotate270(&IMAGES[tile[West] as usize]), 0, 0);
 }
 
 /// Render a board as an image.
@@ -105,7 +110,7 @@ pub fn board_image(board: &Board<E2Edge>) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
             if let Some(t) = &board[(c, r)] {
                 let c = c as u32;
                 let r = r as u32;
-                let mut sub_image = img.sub_image(c*tile_w, r*tile_h, tile_w, tile_h);
+                let mut sub_image = img.sub_image(c * tile_w, r * tile_h, tile_w, tile_h);
                 edge_image(&mut *sub_image, t);
             }
         }

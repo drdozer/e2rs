@@ -1,15 +1,20 @@
 //! Eternity 2-family puzzles.
 
+use rand::{
+    distributions::{Slice, Uniform},
+    prelude::Distribution,
+};
 
-use rand::{distributions::{Slice, Uniform}, prelude::Distribution};
-
-use e2rs::{board::{Clue, ROTATIONS, Indx}, e2::{self, E2_CLUES}, images::{board_image}};
-
+use e2rs::{
+    model::{Clue, Indx, ROTATIONS, Rotate},
+    e2::{self, E2_CLUES},
+    images::board_image,
+};
 
 fn main() {
     let spec = e2::board_spec();
     let tiles = &spec.tiles;
-    let dims = spec.dimensions.unwrap();
+    let dims = &spec.dimensions;
 
     println!("Loaded tiles.");
     for (i, t) in tiles.into_iter().enumerate() {
@@ -26,7 +31,7 @@ fn main() {
 
     let mut rng = rand::thread_rng();
     let r_tile = Slice::new(&tiles[..]).unwrap().map(Clone::clone);
-    let r_col= Uniform::new(0, dims.columns);
+    let r_col = Uniform::new(0, dims.columns);
     let r_row = Uniform::new(0, dims.rows);
     let r_rot = Slice::new(&ROTATIONS).unwrap().map(Clone::clone);
 
@@ -37,7 +42,10 @@ fn main() {
         let clue = Clue {
             tile: r_tile.sample(&mut rng),
             rotation: r_rot.sample(&mut rng),
-            at: Indx { col: r_col.sample(&mut rng), row: r_row.sample(&mut rng) }
+            at: Indx {
+                col: r_col.sample(&mut rng),
+                row: r_row.sample(&mut rng),
+            },
         };
         println!("Applying clue: {:?}", clue);
 

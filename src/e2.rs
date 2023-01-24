@@ -1,8 +1,8 @@
 //! Types and data for the Eternity 2 Puzzle.
-//! 
+//!
 //! This module provides several types and type aliasses to represent the Eternity 2 Puzzle in a type-safe manner.
 //! It also provides functions to load copies of the data for this specific puzzle.
-//! 
+//!
 //! For datastructures useful for prepresenting an arbitrary Eternity 2 style puzzle, see [crate::board].
 
 use lazy_static::lazy_static;
@@ -11,7 +11,7 @@ use std::mem::transmute;
 
 use embed_doc_image::embed_doc_image;
 
-use crate::board::{Board, Tile, TileSet, BoardSpec, BoardShape, Clue};
+use crate::model::{BoardSpec, Clue, BoardShape, Board, Tile, TileSet};
 
 /// Number of columns in the Eternity 2 Puzzle.
 pub const E2_COLUMNS: usize = 16;
@@ -20,7 +20,10 @@ pub const E2_COLUMNS: usize = 16;
 pub const E2_ROWS: usize = 16;
 
 /// Dimensions of the Eternity 2 Puzzle.
-pub const E2_DIMENSIONS: BoardShape = BoardShape { columns: E2_COLUMNS, rows: E2_ROWS };
+pub const E2_DIMENSIONS: BoardShape = BoardShape {
+    columns: E2_COLUMNS,
+    rows: E2_ROWS,
+};
 
 /// Number of tiles in the Eternity 2 Puzzle.
 pub const E2_TILE_COUNT: usize = E2_COLUMNS * E2_ROWS;
@@ -42,13 +45,12 @@ pub fn new_e2board() -> E2Board {
     E2_DIMENSIONS.new_board()
 }
 
-
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
 /// An edge is either *outside* (grey) or one of the 22 two-color patterns.
-/// 
+///
 /// The e2 edges are as follows:
-/// 
+///
 /// | Number | Letter | Edge        |
 /// |--------|--------|-------------|
 /// | 0      | a      | ![e0][e0]   |
@@ -147,14 +149,13 @@ pub enum E2Edge {
     Edge22,
 }
 
-
 impl Default for E2Edge {
     fn default() -> Self {
         E2Edge::Outside
     }
 }
 
-impl crate::board::Edge for E2Edge {
+impl crate::model::Edge for E2Edge {
     fn is_border(&self) -> bool {
         match self {
             E2Edge::Outside => true,
@@ -174,7 +175,7 @@ impl From<u8> for E2Edge {
 pub struct InvalidEdge(char);
 
 /// Parse edge letters into edges.
-/// 
+///
 /// Note - the lettering matches the standardised lettering, using column-major indexing.
 /// Some applications, such asthe [bucas board renderer][e2.bucas.name] use row-major indexing.
 impl TryFrom<char> for E2Edge {
@@ -184,47 +185,26 @@ impl TryFrom<char> for E2Edge {
         match value as i32 - 'a' as i32 {
             v if v < 0 => Err(InvalidEdge(value)),
             v if v >= EDGES.len() as i32 => Err(InvalidEdge(value)),
-            v => Ok(From::from(v as u8))
+            v => Ok(From::from(v as u8)),
         }
     }
 }
 
 /// All edge types from the Eternity 2 Puzzle as an array, for easy indexing.
-/// 
+///
 /// Element zero is the outside (grey) edge type.
 pub const EDGES: [E2Edge; 23] = {
     use E2Edge::*;
     [
-        Outside,
-        Edge1,
-        Edge2,
-        Edge3,
-        Edge4,
-        Edge5,
-        Edge6,
-        Edge7,
-        Edge8,
-        Edge9,
-        Edge10,
-        Edge11,
-        Edge12,
-        Edge13,
-        Edge14,
-        Edge15,
-        Edge16,
-        Edge17,
-        Edge18,
-        Edge19,
-        Edge20,
-        Edge21,
-        Edge22,
+        Outside, Edge1, Edge2, Edge3, Edge4, Edge5, Edge6, Edge7, Edge8, Edge9, Edge10, Edge11,
+        Edge12, Edge13, Edge14, Edge15, Edge16, Edge17, Edge18, Edge19, Edge20, Edge21, Edge22,
     ]
 };
 
 /// Pieces data string literal.
-/// 
+///
 /// The format is exactly that expected by the `tiles()` fn.
-/// 
+///
 /// Each line contains data for one tile.
 /// Each tile is represented as 4 digits representing the edges in the order north, south, west east.
 /// Tiles are numbered as in ![E2 Edges][e2-edges]
@@ -238,14 +218,14 @@ lazy_static! {
 
 /// Retrieve a new copy of the Eternity 2 Puzzle tileset.
 pub fn board_spec() -> BoardSpec<E2Edge> {
-    use crate::board::Side::*;
-    let bs = crate::board::parse_tiles::<
-        E2Edge, 
-        { North }, { East }, { South }, { West }>(TILE_DATA);
-    assert_eq!(bs.tiles.len(), E2_TILE_COUNT + 1); // +1 for the blank tile at element 0
-    match bs.dimensions {
-        None => BoardSpec { dimensions: Some(E2_DIMENSIONS), tiles: bs.tiles },
-        Some(_) => bs,
+    use crate::model::Side::*;
+    let tiles =
+        crate::model::parse_tiles::<E2Edge, { North }, { East }, { South }, { West }>(TILE_DATA);
+    assert_eq!(tiles.len(), E2_TILE_COUNT + 1); // +1 for the blank tile at element 0
+
+    BoardSpec {
+        dimensions: E2_DIMENSIONS,
+        tiles: tiles,
     }
 }
 
@@ -254,5 +234,5 @@ static CLUE_DATA: &str = include_str!("../data/e2clues.txt");
 
 lazy_static! {
     /// The five Eternity 2 Puzzle clues.
-    pub static ref E2_CLUES: Vec<Clue<E2Edge>> = E2_BOARD_SPEC.tiles.parse_clues(CLUE_DATA, false );
+    pub static ref E2_CLUES: Vec<Clue<E2Edge>> = E2_BOARD_SPEC.parse_clues(CLUE_DATA, false );
 }
