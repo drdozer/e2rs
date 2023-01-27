@@ -57,17 +57,6 @@ impl <'a, E> TileSet<E> {
     }
 }
 
-// impl<E, Idx> Index<Idx> for TileSet<E>
-// where
-//     Idx: std::slice::SliceIndex<[Tile<E>]>,
-// {
-//     type Output = Idx::Output;
-
-//     fn index(&self, index: Idx) -> &Self::Output {
-//         &self.0[index]
-//     }
-// }
-
 impl <E> Index<RangeFull> for TileSet<E> {
     type Output = [Tile<E>];
 

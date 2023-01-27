@@ -53,7 +53,12 @@ pub const SIDES: [Side; 4] = [Side::North, Side::East, Side::South, Side::West];
 /// The tile edges can be accessed by their side directly:
 ///
 /// ```
-/// assert_eq!(tile.edges[0], tile[Sides::North]);
+/// use e2rs::model::{Tile, Side};
+/// let tile = Tile::new("n", "e", "s", "w");
+/// assert_eq!(tile[Side::North], "n");
+/// assert_eq!(tile[Side::East], "e");
+/// assert_eq!(tile[Side::South], "s");
+/// assert_eq!(tile[Side::West], "w");
 /// ```
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Tile<E> {
@@ -133,9 +138,14 @@ impl <'a, E> Rotate for &'a Tile<E> {
 /// The rotated tile edges can be accessed by their side directly, taking into account the rotation:
 ///
 /// ```
+/// use e2rs::model::{Tile, Side, Rotate, Rotation};
 /// let tile = Tile::new(1,2,3,4);
-/// let rott = tile.rotate(Rotation::Rot0);
-/// assert_eq!(tile[Sides::West], rott[Sides::South]);
+/// 
+/// let rot0 = tile.rotate(Rotation::Rot0);
+/// assert_eq!(tile[Side::West], rot0[Side::West]);
+/// 
+/// let rot90 = tile.rotate(Rotation::Rot90);
+/// assert_eq!(tile[Side::West], rot90[Side::South]);
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct RotatedTile<'a, E> {
