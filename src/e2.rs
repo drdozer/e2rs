@@ -221,7 +221,7 @@ pub fn board_spec() -> BoardSpec<E2Edge> {
     use crate::model::Side::*;
     let tiles =
         crate::model::parse_tiles::<E2Edge, { North }, { East }, { South }, { West }>(TILE_DATA);
-    assert_eq!(tiles.len(), E2_TILE_COUNT + 1); // +1 for the blank tile at element 0
+    assert_eq!(tiles.len(), E2_TILE_COUNT);
 
     BoardSpec {
         dimensions: E2_DIMENSIONS,

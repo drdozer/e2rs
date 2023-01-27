@@ -105,7 +105,7 @@ impl<E: Copy> BoardSpec<E> {
                 .split(" ")
                 .map(|d| d.parse::<usize>().unwrap())
                 .collect();
-            let tile = self.tiles[digits[0]];
+            let tile = self.tiles[self.tiles.id(digits[0])];
             let col = digits[1];
             let row = digits[2];
             let at = Indx { col, row };

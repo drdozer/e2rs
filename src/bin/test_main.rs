@@ -21,7 +21,7 @@ fn main() {
         println!("{}:\t{:?}", i, t);
     }
 
-    let clue = tiles[139];
+    let clue = tiles[tiles.id(139)];
     println!("{:?}", clue); // todo: tiles are cannonically indexed from 1, not 0
 
     for r in ROTATIONS {
